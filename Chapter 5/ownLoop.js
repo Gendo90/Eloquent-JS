@@ -3,9 +3,15 @@
 // "value" amount of times unless the test function is false, in which case
 // it exits - should function effectively like a for loop
 function loop(val, test, update, body) {
-    let current = body(val)
+    // let current = body(val)
+    let current;
     while(test(val)) {
-        current = body(val, current);
+        if(current===undefined) {
+            current = body(val);
+        }
+        else {
+            current = body(val, current);
+        }
         val = update(val);
     }
     return current;
@@ -25,3 +31,5 @@ let max = loop(0, (a) => a<arr4.length, (a) => a+1, function(a, b=-Infinity) {
 
 console.log(max)
 console.log(arr4)
+
+let test2 = loop(3, n => n > 0, n => n - 1, (a, b) => console.log(a));
