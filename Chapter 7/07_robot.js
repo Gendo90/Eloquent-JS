@@ -124,18 +124,45 @@ function goalOrientedRobot({place, parcels}, route) {
 function compareRobots(robot1, memory1, robot2, memory2) {
     let thisRun,
     total1 = 0,
-    total2 = 0;
-    for (let i = 0; i<100; i++) {
+    total2 = 0,
+    num_tests = 100;
+    for (let i = 0; i<num_tests; i++) {
         thisRun = VillageState.random()
         total1+=runRobot(thisRun, robot1, memory1)
         total2+=runRobot(thisRun, robot2, memory2)
     }
-    console.log(`First robot took an average of ${total1/100} steps to finish`);
-    console.log(`Second robot took an average of ${total2/100} steps to finish`);
+    console.log(`First robot took an average of ${total1/num_tests} steps to finish`);
+    console.log(`Second robot took an average of ${total2/num_tests} steps to finish`);
 }
 
 //check 'compareRobots' function:
 //compareRobots(routeRobot, [], goalOrientedRobot, []);
+
+//Helper function for reduction
+function getMinInternalLength(a, b) {
+        if(a.length<=b.length) {
+            return a
+        }
+        else {
+            return b
+        }
+}
+
+//Helper function to find closest parcel/destination
+function getClosest(routeList) {
+    let closestRoute;
+    if(routeList.length>1) {
+        closestRoute = routeList.reduce(getMinInternalLength)
+    }
+    else if(routeList.length===1) {
+        closestRoute = routeList[0];
+    }
+    else {
+        closestRoute = [];
+    }
+    return closestRoute;
+}
+
 
 //"Robot Efficiency" exercise from Ch. 7
 function myRobot({place, parcels}, route) {
@@ -154,49 +181,15 @@ function myRobot({place, parcels}, route) {
         }
     }
     //find the route to closest parcel
-    let parcelRoute;
-    if(parcelRoutes.length>1) {
-        parcelRoute = parcelRoutes.reduce((a, b) => {
-            if(a.length<=b.length) {
-                return a
-            }
-            else {
-                return b
-            }
-        })
-    }
-    else if(parcelRoutes.length===1) {
-        parcelRoute = parcelRoutes[0];
-    }
-    else {
-        parcelRoute = [];
-    }
+    let parcelRoute = getClosest(parcelRoutes);
 
     //find the route to the closest destination
-    let nextDest;
-    if(heldDestinations.length>1) {
-        nextDest = heldDestinations.reduce((a, b) => {
-            if(a.length<=b.length) {
-                return a
-            }
-            else {
-                return b
-            }
-        })
-    }
-    else if(heldDestinations.length===1) {
-        nextDest = heldDestinations[0];
-    }
-    else {
-        nextDest = [];
-    }
-
-    // console.log(nextDest, parcelRoute)
+    let nextDest = getClosest(heldDestinations);
 
     //combine the results to move towards the closest destination or parcel
     if(nextDest.length===0) {
         route = parcelRoute;
-        console.log(parcelRoute, route)
+        // console.log(parcelRoute, route)
     }
     else if(parcelRoute.length===0) {
         route = nextDest
