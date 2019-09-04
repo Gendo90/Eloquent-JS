@@ -1,8 +1,8 @@
-// let egg = require('12_language')
+let egg = require('./12_language')
 
 // Modify these definitions...
 
-topScope.array = (...args) => {
+egg.topScope.array = (...args) => {
     let output_arr = [];
     for (let arg of args) {
         output_arr.push(arg);
@@ -10,11 +10,11 @@ topScope.array = (...args) => {
     return output_arr;
 };
 
-topScope.length = (arr) => {return arr.length};
+egg.topScope.length = (arr) => {return arr.length};
 
-topScope.element = (arr, n) => {return arr[n]};
+egg.topScope.element = (arr, n) => {return arr[n]};
 
-run(`
+egg.run(`
 do(define(sum, fun(array,
      do(define(i, 0),
         define(sum, 0),

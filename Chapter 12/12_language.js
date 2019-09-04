@@ -161,3 +161,13 @@ specialForms.fun = (args, scope) => {
     return evaluate(body, localScope);
   };
 };
+
+
+exports.parseExpression = parseExpression;
+exports.skipSpace = skipSpace;
+exports.parseApply = parseApply;
+exports.parse = parse;
+exports.evaluate = evaluate;
+exports.topScope = topScope;
+exports.run = run;
+exports.specialForms = specialForms;
