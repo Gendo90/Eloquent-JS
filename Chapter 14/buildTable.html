@@ -1,0 +1,49 @@
+<!doctype html>
+
+<h1>Mountains</h1>
+
+<div id="mountains"></div>
+
+<script>
+  const MOUNTAINS = [
+    {name: "Kilimanjaro", height: 5895, place: "Tanzania"},
+    {name: "Everest", height: 8848, place: "Nepal"},
+    {name: "Mount Fuji", height: 3776, place: "Japan"},
+    {name: "Vaalserberg", height: 323, place: "Netherlands"},
+    {name: "Denali", height: 6168, place: "United States"},
+    {name: "Popocatepetl", height: 5465, place: "Mexico"},
+    {name: "Mont Blanc", height: 4808, place: "Italy/France"}
+  ];
+
+  // Your code here
+  let table_element = document.createElement("table");
+  let firstRow = document.createElement("tr");
+  let tableHeader;
+  let props = [];
+
+  //set up the first row of the table, with header columns
+  for (let col_header in MOUNTAINS[0]) {
+      tableHeader = document.createElement("th");
+      tableHeader.textContent = col_header;
+      firstRow.appendChild(tableHeader);
+      props.push(col_header)
+  }
+  table_element.appendChild(firstRow);
+
+  let tableRow;
+  let tableData;
+  for (let mountain of MOUNTAINS) {
+      tableRow = document.createElement("tr");
+      for (let col of props) {
+          tableData = document.createElement("td");
+          tableData.textContent = mountain[col];
+          if(typeof mountain[col] == "number") {
+              console.log(mountain[col])
+              tableData.style.textAlign = "right";
+          }
+          tableRow.appendChild(tableData);
+      }
+      table_element.appendChild(tableRow);
+  }
+  document.getElementById("mountains").appendChild(table_element)
+</script>
