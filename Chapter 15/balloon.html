@@ -1,0 +1,36 @@
+<!doctype html>
+
+<p>🎈</p>
+
+<script>
+  let balloon = document.querySelector("p");
+  let currSize = 10;
+  balloon.style.fontSize = currSize+"px";
+  window.addEventListener("keydown", function balloonResize(event) {
+      //inflation case
+      if(event.code === "ArrowUp" && currSize<300) {
+          currSize*=1.1;
+          console.log(currSize)
+          balloon.style.fontSize  = currSize+ "px";
+          console.log("inflating");
+          event.preventDefault();
+      }
+      else if (event.code === "ArrowUp") {
+          event.preventDefault();
+          balloon.textContent = "💥";
+          window.removeEventListener("keydown", balloonResize);
+      }
+
+      //deflation case
+      if(event.code === "ArrowDown" && currSize>10) {
+          currSize/=1.1;
+          console.log(currSize)
+          balloon.style.fontSize  = currSize+ "px";
+          console.log("deflating");
+          event.preventDefault();
+      }
+      else if (event.code === "ArrowDown") {
+          event.preventDefault();
+      }
+  })
+</script>
