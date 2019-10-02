@@ -1,0 +1,39 @@
+<!doctype html>
+
+<style>
+  .trail { /* className for the trail elements */
+    position: absolute;
+    height: 6px; width: 6px;
+    border-radius: 3px;
+    background: teal;
+  }
+  body {
+    height: 300px;
+  }
+</style>
+
+<script>
+  // Your code here.
+  let trail_holder = []
+  let newDiv;
+  let lastDiv;
+  let lastElement;
+  document.addEventListener('mousemove', function(event) {
+      // console.log(event);
+      [, lastx, lasty] = trail_holder.length>0 ? trail_holder[trail_holder.length-1] : [0, 0, 0]
+      console.log(lastx, lasty)
+      if(((lastx+3)<event.x || event.x<(lastx-3)) || (lasty+3)<event.y || event.y<(lasty-3)) {
+          newDiv = document.createElement('div');
+          newDiv.classList.add('trail');
+          newDiv.style.top = event.y+"px";
+          newDiv.style.left = event.x+"px";
+          trail_holder.push([newDiv, event.x, event.y]);
+          document.body.appendChild(newDiv);
+      }
+
+      if(trail_holder.length > 10) {
+          lastDiv = trail_holder.shift()[0]
+          document.body.removeChild(lastDiv);
+      }
+  })
+</script>
