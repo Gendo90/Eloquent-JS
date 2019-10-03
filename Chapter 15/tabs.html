@@ -1,0 +1,54 @@
+<!doctype html>
+
+<tab-panel>
+  <div data-tabname="one">Tab one</div>
+  <div data-tabname="two">Tab two</div>
+  <div data-tabname="three">Tab three</div>
+</tab-panel>
+<script>
+  function asTabs(node) {
+    let allChildElements = node.children;
+    let overallList = document.createElement("ul");
+    overallList.style.display = "inline";
+    let thisListItem;
+    let thisButton;
+    let lastShown;
+    let lastButton;
+    for (let tab of allChildElements) {
+        thisListItem = document.createElement("li");
+        thisListItem.style.display = "inline";
+        thisButton = document.createElement("button")
+        thisButton.textContent = tab.getAttribute("data-tabname")
+        thisListItem.appendChild(thisButton);
+        overallList.appendChild(thisListItem);
+        tab.style.display = "none"
+    }
+    node.insertBefore(overallList, allChildElements[0]);
+
+    node.addEventListener("click", function(event) {
+        let maybeTab = event.target
+        //closes and opens a tab if a button is selected
+        if(maybeTab.tagName == "BUTTON") {
+            //removes styling from last tab button selected
+            if(lastButton) {
+                lastButton.style.border = "";
+                lastButton.style.color = "";
+            }
+            maybeTab.style.border = "1px solid blue";
+            maybeTab.style.color = "blue";
+            //finds the "page" to show from this tab
+            let pageSelector = maybeTab.textContent;
+            let showThis = node.querySelector(`[data-tabname='${pageSelector}']`)
+            showThis.style.display = "block";
+            //renders the last page invisible
+            if(lastShown) {
+                lastShown.style.display = "none";
+            }
+            //sets variables to store this tab as the last tab selected
+            lastShown = showThis;
+            lastButton = maybeTab;
+        }
+    })
+  }
+  asTabs(document.querySelector("tab-panel"));
+</script>
