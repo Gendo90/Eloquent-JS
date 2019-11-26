@@ -331,9 +331,25 @@ function runLevel(level, Display) {
   let display = new Display(document.body, level);
   let state = State.start(level);
   let ending = 1;
-  // window.addEventListener("keydown", )
+  let paused = false;
+  window.addEventListener("keydown", function(event) {
+      if(event.key == "Escape") {
+          if(!paused) {
+              // pause the game
+              state.status = "paused";
+              paused = true;
+          }
+          else {
+              state.status = "playing";
+              paused = false;
+          }
+      }
+  });
   return new Promise(resolve => {
     runAnimation(time => {
+      if(state.status == "paused") {
+          return true;
+      }
       state = state.update(time, arrowKeys);
       display.syncState(state);
       if (state.status == "playing") {
