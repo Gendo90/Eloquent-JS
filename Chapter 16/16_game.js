@@ -298,21 +298,25 @@ Player.prototype.update = function(time, state, keys) {
   return new Player(pos, new Vec(xSpeed, ySpeed));
 };
 
-function trackKeys(keys) {
+function trackKeys(keys, ) {
   let down = Object.create(null);
   function track(event) {
     if (keys.includes(event.key)) {
       down[event.key] = event.type == "keydown";
+      console.log(event.key)
       event.preventDefault();
     }
   }
+
   window.addEventListener("keydown", track);
   window.addEventListener("keyup", track);
-  return down;
+  return [down, track];
+
+
 }
 
-var arrowKeys =
-  trackKeys(["ArrowLeft", "ArrowRight", "ArrowUp"]);
+// var arrowKeys =
+//   trackKeys(["ArrowLeft", "ArrowRight", "ArrowUp"]);
 
 function runAnimation(frameFunc) {
   let lastTime = null;
@@ -332,19 +336,26 @@ function runLevel(level, Display) {
   let state = State.start(level);
   let ending = 1;
   let paused = false;
-  window.addEventListener("keydown", function(event) {
+  let last_status = state.status;
+  let [arrowKeys, tracker_func] = trackKeys(["ArrowLeft", "ArrowRight", "ArrowUp"]);
+  function pauseGame(event) {
       if(event.key == "Escape") {
           if(!paused) {
               // pause the game
               state.status = "paused";
               paused = true;
+              window.removeEventListener("keydown", tracker_func);
+              window.removeEventListener("keyup", tracker_func);
           }
           else {
               state.status = "playing";
               paused = false;
+              [arrowKeys, tracker_func] = trackKeys(["ArrowLeft", "ArrowRight", "ArrowUp"]);
           }
       }
-  });
+  }
+  //add listener to enable pausing the game
+  window.addEventListener("keydown", pauseGame);
   return new Promise(resolve => {
     runAnimation(time => {
       if(state.status == "paused") {
@@ -358,6 +369,9 @@ function runLevel(level, Display) {
         ending -= time;
         return true;
       } else {
+        window.removeEventListener("keydown", tracker_func);
+        window.removeEventListener("keyup", tracker_func);
+        window.removeEventListener("keydown", pauseGame);
         display.clear();
         resolve(state.status);
         return false;
