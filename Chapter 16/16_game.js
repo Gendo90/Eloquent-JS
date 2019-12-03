@@ -94,6 +94,23 @@ var Lava = class Lava {
 
 Lava.prototype.size = new Vec(1, 1);
 
+// new "Monster" object that can collide with the
+// Player and cause the player to lose
+var Monster = class Monster {
+  constructor(pos, speed) {
+    this.pos = pos;
+    this.speed = speed;
+  }
+
+  get type() { return "monster"; }
+
+  static create(pos) {
+    return new Monster(pos.plus(new Vec(-0.5, -0.5)), new Vec(3, 0));
+  }
+}
+
+Monster.prototype.size = new Vec(1, 1);
+
 var Coin = class Coin {
   constructor(pos, basePos, wobble) {
     this.pos = pos;
@@ -115,7 +132,7 @@ Coin.prototype.size = new Vec(0.6, 0.6);
 var levelChars = {
   ".": "empty", "#": "wall", "+": "lava",
   "@": Player, "o": Coin,
-  "=": Lava, "|": Lava, "v": Lava
+  "=": Lava, "|": Lava, "v": Lava, "*":Monster
 };
 
 var simpleLevel = new Level(simpleLevelPlan);
@@ -263,6 +280,33 @@ Lava.prototype.update = function(time, state) {
   }
 };
 
+Monster.prototype.collide = function(state) {
+    let player = state.player
+    //remove monster from list of actors in case the player squised the monster
+    let filtered = state.actors.filter(a => a != this);
+    console.log(player.pos.y+player.size.y-this.pos.y)
+    console.log(player.pos.x+player.size.x, this.pos.x)
+    console.log(player.pos.x, this.pos.x+this.size.x)
+    console.log(player.speed.y)
+    if(player.pos.x + player.size.x > this.pos.x &&
+           player.pos.x < this.pos.x + this.size.x && player.pos.y + player.size.y - this.pos.y < .25) {
+        return new State(state.level, filtered, state.status);
+    }
+    else {
+        return new State(state.level, state.actors, "lost");
+    }
+}
+
+Monster.prototype.update = function(time, state) {
+    let newPos = this.pos.plus(this.speed.times(time));
+    if (!state.level.touches(newPos, this.size, "wall")) {
+        return new Monster(newPos, this.speed);
+    }
+    else {
+        return new Monster(this.pos, this.speed.times(-1));
+    }
+}
+
 var wobbleSpeed = 8, wobbleDist = 0.07;
 
 Coin.prototype.update = function(time) {
@@ -288,9 +332,17 @@ Player.prototype.update = function(time, state, keys) {
 
   let ySpeed = this.speed.y + time * gravity;
   let movedY = pos.plus(new Vec(0, ySpeed * time));
+  let testPlayer = new Player(movedY, this.speed)
+  let monsters_list = state.actors.find(a=>a.type==="monster");
   if (!state.level.touches(movedY, this.size, "wall")) {
-    pos = movedY;
-  } else if (keys.ArrowUp && ySpeed > 0) {
+      if(monsters_list && overlap(testPlayer, monsters_list)) {
+          ySpeed = 0
+      }
+      else {
+          pos = movedY;
+      }
+    }
+  else if (keys.ArrowUp && ySpeed > 0) {
     ySpeed = -jumpSpeed;
   } else {
     ySpeed = 0;
