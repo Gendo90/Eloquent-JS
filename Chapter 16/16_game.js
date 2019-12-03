@@ -247,6 +247,9 @@ State.prototype.update = function(time, keys) {
     if (actor != player && overlap(actor, player)) {
       newState = actor.collide(newState);
     }
+    else if(actor.type=="monster" && onTop(player, actor)) {
+        newState = actor.collide(newState)
+    }
   }
   return newState;
 };
@@ -256,6 +259,13 @@ function overlap(actor1, actor2) {
          actor1.pos.x < actor2.pos.x + actor2.size.x &&
          actor1.pos.y + actor1.size.y > actor2.pos.y &&
          actor1.pos.y < actor2.pos.y + actor2.size.y;
+}
+
+function onTop(player, actor2) {
+    return player.pos.x + player.size.x > actor2.pos.x &&
+           player.pos.x < actor2.pos.x + actor2.size.x &&
+           player.pos.y + player.size.y - actor2.pos.y < .25 &&
+           player.speed.y===0;
 }
 
 Lava.prototype.collide = function(state) {
@@ -284,12 +294,7 @@ Monster.prototype.collide = function(state) {
     let player = state.player
     //remove monster from list of actors in case the player squised the monster
     let filtered = state.actors.filter(a => a != this);
-    console.log(player.pos.y+player.size.y-this.pos.y)
-    console.log(player.pos.x+player.size.x, this.pos.x)
-    console.log(player.pos.x, this.pos.x+this.size.x)
-    console.log(player.speed.y)
-    if(player.pos.x + player.size.x > this.pos.x &&
-           player.pos.x < this.pos.x + this.size.x && player.pos.y + player.size.y - this.pos.y < .25) {
+    if(onTop(player, this)) {
         return new State(state.level, filtered, state.status);
     }
     else {
