@@ -264,7 +264,8 @@ function overlap(actor1, actor2) {
 function onTop(player, actor2) {
     return player.pos.x + player.size.x > actor2.pos.x &&
            player.pos.x < actor2.pos.x + actor2.size.x &&
-           player.pos.y + player.size.y - actor2.pos.y < .25 &&
+           player.pos.y + player.size.y < actor2.pos.y &&
+           Math.abs(player.pos.y + player.size.y - actor2.pos.y) < 0.1 &&
            player.speed.y===0;
 }
 
@@ -295,6 +296,8 @@ Monster.prototype.collide = function(state) {
     //remove monster from list of actors in case the player squised the monster
     let filtered = state.actors.filter(a => a != this);
     if(onTop(player, this)) {
+        console.log(player.pos.y + player.size.y - this.pos.y)
+        console.log(player.pos.y - (this.pos.y + this.size.y))
         return new State(state.level, filtered, state.status);
     }
     else {
