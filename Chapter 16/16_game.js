@@ -273,9 +273,14 @@ Lava.prototype.collide = function(state) {
   return new State(state.level, state.actors, "lost");
 };
 
+let coinCollect = new Howl({
+      src: ['./sounds/coin-04.wav']
+    })
+
 Coin.prototype.collide = function(state) {
   let filtered = state.actors.filter(a => a != this);
   let status = state.status;
+  coinCollect.play();
   if (!filtered.some(a => a.type == "coin")) status = "won";
   return new State(state.level, filtered, status);
 };
@@ -285,6 +290,7 @@ Lava.prototype.update = function(time, state) {
   if (!state.level.touches(newPos, this.size, "wall")) {
     return new Lava(newPos, this.speed, this.reset);
   } else if (this.reset) {
+      console.log(this.pos.x)
     return new Lava(this.reset, this.speed, this.reset);
   } else {
     return new Lava(this.pos, this.speed.times(-1));
@@ -327,6 +333,9 @@ Coin.prototype.update = function(time) {
 var playerXSpeed = 7;
 var gravity = 30;
 var jumpSpeed = 17;
+let jumpSound = new Howl({
+      src: ['./sounds/jump_07.wav']
+    })
 
 Player.prototype.update = function(time, state, keys) {
   let xSpeed = 0;
@@ -352,6 +361,7 @@ Player.prototype.update = function(time, state, keys) {
     }
   else if (keys.ArrowUp && ySpeed > 0) {
     ySpeed = -jumpSpeed;
+    jumpSound.play()
   } else {
     ySpeed = 0;
   }
@@ -363,7 +373,7 @@ function trackKeys(keys, ) {
   function track(event) {
     if (keys.includes(event.key)) {
       down[event.key] = event.type == "keydown";
-      console.log(event.key)
+      // console.log(event.key)
       event.preventDefault();
     }
   }
@@ -377,6 +387,7 @@ function trackKeys(keys, ) {
 
 // var arrowKeys =
 //   trackKeys(["ArrowLeft", "ArrowRight", "ArrowUp"]);
+let first_time = true;
 
 function runAnimation(frameFunc) {
   let lastTime = null;
@@ -385,11 +396,25 @@ function runAnimation(frameFunc) {
       let timeStep = Math.min(time - lastTime, 100) / 1000;
       if (frameFunc(timeStep) === false) return;
     }
+
     lastTime = time;
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
 }
+
+let background_music = new Howl({
+  src: ['./sounds/dubstep_soundtrack.mp3'],
+  autoplay: true,
+  loop: true,
+  preload: true,
+  onplay: console.log("started"),
+  onload: console.log("loaded"),
+  onend: console.log("ended")
+  // html5: true,
+  // volume: 0.5
+});
+
 
 function runLevel(level, Display) {
   let display = new Display(document.body, level);
@@ -416,6 +441,19 @@ function runLevel(level, Display) {
   }
   //add listener to enable pausing the game
   window.addEventListener("keydown", pauseGame);
+  //create function to start music on click
+  function startMusic() {
+      if(first_time) {
+          background_music.play()
+          first_time=false
+      }
+      window.removeEventListener("click", startMusic)
+      window.removeEventListener("keydown", startMusic)
+  }
+  // add listener to start background_music
+  // window.addEventListener("click", startMusic)
+  // window.addEventListener("keydown", startMusic)
+
   return new Promise(resolve => {
     runAnimation(time => {
       if(state.status == "paused") {
@@ -442,6 +480,7 @@ function runLevel(level, Display) {
 
 async function runGame(plans, Display) {
   let lives = 3;
+  background_music.play();
   for (let level = 0; level < plans.length;) {
     console.log(lives)
     let status = await runLevel(new Level(plans[level]),
@@ -452,6 +491,10 @@ async function runGame(plans, Display) {
     else if(status == "lost") {
         lives--
     }
+    // if(lives===0) {
+    //     break
+    //     console.log("You've lost! Game Over!")
+    // }
   }
   console.log("You've won!");
 }
