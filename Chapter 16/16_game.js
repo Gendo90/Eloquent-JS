@@ -514,8 +514,9 @@ function runLevel(level, Display) {
   });
 }
 
-
-
+let winSound = new Howl({
+    src: ['sounds/cheer.mp3']
+})
 async function runGame(plans, Display) {
   let lives = 3;
   // background_music.on('end', fullSongShifts)
@@ -541,4 +542,10 @@ async function runGame(plans, Display) {
     // }
   }
   console.log("You've won!");
+  winSound.play();
+  Swal.fire(
+      "Congratulations, <br>You Won!",
+      "Play Again?",
+      'success'
+  ).then((result)=>runGame(plans, Display))
 }
